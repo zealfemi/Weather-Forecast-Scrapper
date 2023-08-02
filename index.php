@@ -5,7 +5,7 @@
 
   if (array_key_exists("city", $_GET) && $_GET['city']) {
 
-    $urlContents = "http://api.openweathermap.org/data/2.5/weather?q=".urlencode($_GET['city'])."&appid=d703ca2a39e58cb1c917b68b48b6c122";
+    $urlContents = "API URL";
 
     if ($_GET['city'] == "") {
         $error = "Please enter the name of a city";
