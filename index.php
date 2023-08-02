@@ -45,7 +45,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>Weather Scrapper</title>
+  <title>Weather Forecast Scrapper</title>
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -67,11 +67,16 @@
     padding-top: 100px;
     width: 450px;
   }
+    
+  #footer {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+  }
   </style>
 </head>
 
 <body>
-  <div class="text-end px-5 pt-5">Mackie 🙂</div>
 
   <div class="container m-0 m-auto text-center">
     <h1>What's The Weather?</h1>
@@ -96,6 +101,8 @@
       ?>
     </div>
   </div>
+
+  <div id="footer" class="text-center text-white py-3">Designed by <a href="https://github.com/zealfemi" style="text-decoration: none;">Mackie</a></div>
 
   <script src="/js/bootstrap.min.js" async defer></script>
   <script src="/js/jquery.min.js"></script>
