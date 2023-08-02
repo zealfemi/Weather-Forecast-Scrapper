@@ -1,100 +1,83 @@
 <?php
+
   $error = "";
-  $successMsg ="";
-  
-  if ($_GET) {
-    if (array_key_exists('city', $_GET)) {
-      $city = str_replace(" ", "", $_GET['city']);
-  
-      $cities = "https://www.weather-forecast.com/locations/". $city ."/forecasts/latest";
-      
-      if ($city == "") {
+  $weather = "";
+
+  if (array_key_exists("city", $_GET) && $_GET['city']) {
+
+    $urlContents = "http://api.openweathermap.org/data/2.5/weather?q=".urlencode($_GET['city'])."&appid=d703ca2a39e58cb1c917b68b48b6c122";
+
+    if ($_GET['city'] == "") {
         $error = "Please enter the name of a city";
       }
   
-      $file_headers = @get_headers($cities);
+      $file_headers = @get_headers($urlContents);
       if(!$file_headers || $file_headers[0] == 'HTTP/1.1 404 Not Found') {
-          $error = "<div class='alert alert-danger text-danger'>City could not be found!</div>";
+          $error = "City could not be found!";
       }
       else {
-          $forecastPage = file_get_contents($cities);
+          $api = file_get_contents($urlContents);
+          $weatherArray = json_decode($api, true);
       
-          $pageArray = explode('3 days):</div><p class="location-summary__text"><span class="phrase">', $forecastPage);
-  
-          if (sizeof($pageArray) > 1) {
-            $pageArray2 = explode('</span></p></div>', $pageArray[1]);
-              
-              if (sizeof($pageArray2) > 1) {
-                $weather = $pageArray2[0];
-                
-                $successMsg = "<div class='alert alert-success text-success'>" . $weather . "</div>";
-              } else {
-                $error = "<div class='alert alert-danger text-danger'>City could not be found!</div>";
-              }
-          } else {
-            $error = "<div class='alert alert-danger text-danger'>City could not be found!</div>";
+          if ($weatherArray['cod'] == 200) {
+        
+            $weather = "The weather in ".$_GET['city'].", ".$weatherArray['sys']['country'].", is currently '".$weatherArray['weather'][0]['description']."'.";
+      
+            $tempInCelcius = intval($weatherArray['main']['temp'] - 273);
+      
+            $weather .= " The temperature is ".$tempInCelcius."&deg;C and the wind speed is ".$weatherArray['wind']['speed']."m/s.";
+      
+          }
+           else {
+            $error = "City could not be found!";
           } 
       }
-    }
   }
-?>
 
+?>
 <!DOCTYPE html>
 <html>
 
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>Weather Scrapper</title>
+  <title>Weather Forecast</title>
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="/css/bootstrap.min.css">
   <link rel="stylesheet" href="/css/jquery-ui.css">
-  <style>
-  html {
-    background: url(/background.jpg) no-repeat center center fixed;
-    -webkit-background-size: cover;
-    -moz-background-size: cover;
-    -o-background-size: cover;
-    background-size: cover;
-  }
-
-  body {
-    background: none;
-  }
-
-  .container {
-    padding-top: 100px;
-    width: 450px;
-  }
-  </style>
+  <link rel="stylesheet" href="/css/style.css">
 </head>
 
 <body>
-  <div class="text-end px-5 pt-5">Mackie 🙂</div>
 
-  <div class="container m-0 m-auto text-center">
-    <h1>What's The Weather?</h1>
+  <div class="container text-center">
+
+    <h1 class="fw-bold">What's the weather?</h1>
+
+    <p id="error"></p>
 
     <form method="GET">
-      <fieldset class="form-group">
-        <label class="text-white">Enter the name of a city.</label>
-        <input type="text" id="city" name="city" placeholder="Eg. Lagos, Ibadan" class="form-control my-4"
-          value="<?php if($_GET){echo $_GET['city'];} ?>" />
-        <input type="Submit" id="submitBtn" class="btn btn-primary mb-4" />
-      </fieldset>
+      <label for="city" class="fw-medium">Enter the name of a city.</label>
+      <input type="text" name="city" id="city" class="form-control my-3"
+        value="<?php if($_GET){echo $_GET['city'];} ?>" />
+      <input type="submit" value="Submit" class="btn btn-primary mb-2" />
     </form>
 
-    <div id="error">
+    <p id="result">
       <?php 
-        if ($successMsg) {
-          echo $successMsg; 
-        }
-        else if ($error) {
-          echo $error; 
+        if ($error) {
+          echo "<div class='alert alert-danger text-danger text-start'>".$error."</div>";
+        } else if ($weather) {
+          echo "<div class='alert alert-success text-success text-start'>".$weather."</div>";
         }
       ?>
-    </div>
+    </p>
+
+  </div>
+
+  <div id="footer" class="text-center text-white py-2">Designed by <a href="https://github.com/zealfemi"
+      style="text-decoration: none;">Mackie</a>
   </div>
 
   <script src="/js/bootstrap.min.js" async defer></script>
@@ -103,15 +86,9 @@
 
   <script type="text/javascript">
   $("form").submit(function() {
-    var error = ""
 
     if ($("#city").val() == "") {
-      error += "Please enter the name of a city"
-    }
-
-    if (error != "") {
-      $("#error").html("<div class='alert alert-danger text-danger'>" + error + "</div>")
-
+      $("#error").html("<div class='alert alert-danger text-danger'>Please enter a city</div>")
       return false;
     } else {
       return true;
